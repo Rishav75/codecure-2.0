@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "MoodEntry": {
+      "title": "MoodEntry",
+      "description": "A daily mood entry for a user",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who logged the mood"
+        },
+        "mood": {
+          "type": "string",
+          "enum": ["Happy", "Okay", "Down"],
+          "description": "The mood value"
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "The timestamp when the mood was logged"
+        },
+        "date": {
+          "type": "string",
+          "description": "The date string in YYYY-MM-DD format"
+        }
+      },
+      "required": ["userId", "mood", "timestamp", "date"]
+    },
+    "NotificationAlert": {
+      "title": "NotificationAlert",
+      "description": "An alert for appointments, vaccinations, or medications",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["appointment", "vaccination", "medication"],
+          "description": "Type of alert"
+        },
+        "title": {
+          "type": "string",
+          "description": "Alert title"
+        },
+        "message": {
+          "type": "string",
+          "description": "Alert message content"
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "When the alert was created"
+        },
+        "read": {
+          "type": "boolean",
+          "description": "Whether the alert has been read"
+        }
+      },
+      "required": ["userId", "type", "title", "message", "timestamp", "read"]
+    }
+  },
+  "firestore": {
+    "users/{userId}/moods/{moodId}": {
+      "schema": { "$ref": "#/entities/MoodEntry" },
+      "description": "Mood entries for a specific user"
+    },
+    "users/{userId}/alerts/{alertId}": {
+      "schema": { "$ref": "#/entities/NotificationAlert" },
+      "description": "Notification alerts for a specific user"
+    }
+  }
+}

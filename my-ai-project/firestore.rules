@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidMoodEntry(data) {
+      return data.keys().hasAll(['userId', 'mood', 'timestamp', 'date']) &&
+             data.keys().size() == 4 &&
+             data.userId == request.auth.uid &&
+             data.mood is string &&
+             data.mood.size() <= 10 &&
+             data.mood.matches('^(Happy|Okay|Down)$') &&
+             data.timestamp is number &&
+             data.date is string &&
+             data.date.size() <= 15;
+    }
+
+    match /users/{userId}/moods/{moodId} {
+      allow read, list: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(moodId) && isValidMoodEntry(incoming());
+      allow update: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(moodId) && isValidMoodEntry(incoming());
+      allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(moodId);
+    }
+    function isValidAlert(data) {
+      return data.keys().hasAll(['userId', 'type', 'title', 'message', 'timestamp', 'read']) &&
+             data.keys().size() == 6 &&
+             data.userId == request.auth.uid &&
+             data.type is string &&
+             data.type.matches('^(appointment|vaccination|medication)$') &&
+             data.title is string &&
+             data.message is string &&
+             data.timestamp is number &&
+             data.read is bool;
+    }
+
+    match /users/{userId}/alerts/{alertId} {
+      allow read, list: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(alertId) && isValidAlert(incoming());
+      allow update: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(alertId) && isValidAlert(incoming());
+      allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(alertId);
+    }
+  }
+}
