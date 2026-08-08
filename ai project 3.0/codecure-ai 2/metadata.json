@@ -1,0 +1,6 @@
+{
+  "name": "CODECURE AI",
+  "description": "Your AI Health Companion for a Smarter, Healthier Digital Life - AI Health Assistant, Medical Scanner, Digital Wellbeing, Nutrition AI, and Health Analytics.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
